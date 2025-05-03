@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <title>TIC Go Home</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e53e3e">
+</head>
+<body>
+  <header>
+    <h1>TIC Go Home</h1>
+    <div class="time-display">
+      <span id="current-time">00:00</span>
+    </div>
+    <div class="period-info">
+      <span id="period-display">Chargement...</span>
+      <button id="toggle-period">Changer</button>
+    </div>
+  </header>
+
+  <div class="direction-selector">
+    <span>Direction:</span>
+    <div class="direction-container">
+      <span id="direction-display">Cimetière Nord → Hippolyte Bottier</span>
+      <button id="toggle-direction">↻</button>
+    </div>
+  </div>
+
+  <main>
+    <div class="card">
+      <div class="card-header">
+        <div class="bus-icon">🚌</div>
+        <h2 id="departure-display">Départ: Arrêt Cimetière Nord</h2>
+      </div>
+      
+      <div class="times-container">
+        <div class="time-block">
+          <p class="label">Prochain bus</p>
+          <p class="value" id="next-bus">Chargement...</p>
+        </div>
+        <div class="time-block">
+          <p class="label">Temps d'attente</p>
+          <p class="value" id="wait-time">...</p>
+        </div>
+        <div class="time-block">
+          <p class="label">Temps réel</p>
+          <div class="realtime-container">
+            <div class="status-indicator" id="status-indicator"></div>
+            <p class="value" id="adjusted-time">...</p>
+            <p class="delay" id="delay-info"></p>
+          </div>
+        </div>
+      </div>
+      
+      <h3>Horaires de la journée</h3>
+      <div class="schedules-container" id="schedules-container">
+        <!-- Les horaires seront ajoutés ici dynamiquement -->
+      </div>
+    </div>
+    
+    <div class="info-card">
+      <h3>Informations</h3>
+      <p id="line-info">Ligne 3 - Cimetière Nord → Hippolyte Bottier</p>
+      <p>Transports gratuits de l'Agglomération de la Région de Compiègne</p>
+    </div>
+  </main>
+
+  <footer>
+    TIC Go Home - Concept d'affichage des horaires de bus - Ligne 3
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Enregistrer le service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(registration => {
+            console.log('SW registered:', registration);
+          })
+          .catch(error => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+</html>

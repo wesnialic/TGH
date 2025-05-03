@@ -1,0 +1,8 @@
+{
+  "name": "TIC Go Home - Horaires de bus en temps réel",
+  "short_name": "TIC Go Home",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#e53e3e"
+}
