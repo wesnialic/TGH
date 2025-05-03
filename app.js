@@ -60,6 +60,23 @@ const holidays = [
   { name: "Assomption", date: new Date(2026, 7, 15) }
 ];
 
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+
 // Initialisation des variables d'état
 let currentDirection = 'cimetiereToHippolyte';
 let isSchoolPeriod = true;
@@ -74,13 +91,27 @@ const toggleDirectionButton = document.getElementById('toggle-direction');
 const departureDisplayElement = document.getElementById('departure-display');
 const nextBusElement = document.getElementById('next-bus');
 const waitTimeElement = document.getElementById('wait-time');
-const adjustedTimeElement = document.getElementById('adjusted-time');
-const delayInfoElement = document.getElementById('delay-info');
-const statusIndicatorElement = document.getElementById('status-indicator');
 const schedulesContainerElement = document.getElementById('schedules-container');
 const lineInfoElement = document.getElementById('line-info');
 
-// Mettre à jour l'heure actuelle
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+
+      const distCimetiere = getDistance(userLat, userLon, 49.424552, 2.841670);
+      const distHippolyte = getDistance(userLat, userLon, 49.420494, 2.825805);
+
+      currentDirection = distCimetiere < distHippolyte 
+        ? 'cimetiereToHippolyte' 
+        : 'hippolyteToCimetiere';
+
+      toggleDirection();
+    });
+  }
+
+  // Mettre à jour l'heure actuelle
 function updateCurrentTime() {
   currentTime = new Date();
   currentTimeElement.textContent = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -201,21 +232,7 @@ function getNextBus() {
     return;
   }
   
-  // Obtenir les données en temps réel
-  const realTimeInfo = simulateRealTimeData(currentDirection);
-  
-  // Ajuster le temps d'attente en fonction du délai
-  let adjustedWaitTimeInMinutes = waitTimeInMinutes + realTimeInfo.delay;
-  if (adjustedWaitTimeInMinutes < 0) adjustedWaitTimeInMinutes = 0;
-  
-  // Mettre à jour l'interface
-  nextBusElement.textContent = nextBusTime;
-  waitTimeElement.textContent = `${waitTimeInMinutes} min`;
-  adjustedTimeElement.textContent = `${adjustedWaitTimeInMinutes} min`;
-  delayInfoElement.textContent = realTimeInfo.delayText;
-  statusIndicatorElement.className = `status-indicator ${realTimeInfo.statusColor}`;
-  
-  // Mettre à jour les horaires de la journée
+  // Temps réel supprimé
   updateSchedules(currentSchedules, nextBusTime);
 }
 
@@ -256,8 +273,42 @@ function togglePeriod() {
   getNextBus();
 }
 
+
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+  return R * c;
+}
+
+
 // Initialisation
 function init() {
+  
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const userLat = position.coords.latitude;
+      const userLon = position.coords.longitude;
+
+      const distCimetiere = getDistance(userLat, userLon, 49.424552, 2.841670);
+      const distHippolyte = getDistance(userLat, userLon, 49.420494, 2.825805);
+
+      currentDirection = distCimetiere < distHippolyte 
+        ? 'cimetiereToHippolyte' 
+        : 'hippolyteToCimetiere';
+
+      toggleDirection();
+    });
+  }
+
   // Mettre à jour l'heure
   updateCurrentTime();
   setInterval(updateCurrentTime, 60000); // Mettre à jour toutes les minutes
