@@ -173,7 +173,9 @@ main {
 .realtime-container {
   display: flex;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 0.25rem;
 }
 
 .status-indicator {
@@ -187,7 +189,7 @@ main {
 .delay {
   font-size: 0.75rem;
   color: var(--gray-500);
-  margin-top: 0.25rem;
+  margin-left: 0.25rem;
 }
 
 .card h3 {
