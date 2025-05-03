@@ -10,20 +10,6 @@ const schedules = {
   }
 };
 
-// Coordonnées GPS des arrêts
-const stopLocations = {
-  cimetiereNord: {
-    name: "Cimetière Nord",
-    lat: 49.424552273565894, 
-    lng: 2.84166977854877
-  },
-  hippolyteBottier: {
-    name: "Hippolyte Bottier",
-    lat: 49.42049375102506, 
-    lng: 2.8258047103481587
-  }
-};
-
 // Périodes de vacances scolaires zone B
 const vacationPeriods = [
   // 2024-2025
@@ -78,8 +64,6 @@ const holidays = [
 let currentDirection = 'cimetiereToHippolyte';
 let isSchoolPeriod = true;
 let currentTime = new Date();
-let userLocation = null;
-let closestStop = null;
 
 // Éléments DOM
 const currentTimeElement = document.getElementById('current-time');
@@ -226,143 +210,6 @@ function getNextBus() {
   
   // Mettre à jour l'interface
   nextBusElement.textContent = nextBusTime;
-  waitTimeElement.textContent = `${waitTimeInMinutes} min`;
-  adjustedTimeElement.textContent = `${adjustedWaitTimeInMinutes} min`;
-  delayInfoElement.textContent = realTimeInfo.delayText;
-  statusIndicatorElement.className = `status-indicator ${realTimeInfo.statusColor}`;
-  
-  // Mettre à jour les horaires de la journée
-  updateSchedules(currentSchedules, nextBusTime);
-}
-
-// Mettre à jour l'affichage des horaires
-function updateSchedules(schedules, nextBusTime) {
-  schedulesContainerElement.innerHTML = '';
-  
-  schedules.forEach(time => {
-    const scheduleItem = document.createElement('div');
-    scheduleItem.className = `schedule-item ${time === nextBusTime ? 'active' : ''}`;
-    scheduleItem.textContent = time;
-    schedulesContainerElement.appendChild(scheduleItem);
-  });
-}
-
-// Changer la direction
-function toggleDirection() {
-  currentDirection = currentDirection === 'cimetiereToHippolyte' ? 'hippolyteToCimetiere' : 'cimetiereToHippolyte';
-  updateDirectionDisplay();
-  
-  // Mettre à jour les informations
-  getNextBus();
-}
-
-// Mettre à jour l'affichage de direction
-function updateDirectionDisplay() {
-  if (currentDirection === 'cimetiereToHippolyte') {
-    directionDisplayElement.textContent = 'Cimetière Nord → Hippolyte Bottier';
-    departureDisplayElement.textContent = 'Départ: Arrêt Cimetière Nord';
-    lineInfoElement.textContent = 'Ligne 3 - Cimetière Nord → Hippolyte Bottier';
-  } else {
-    directionDisplayElement.textContent = 'Hippolyte Bottier → Cimetière Nord';
-    departureDisplayElement.textContent = 'Départ: Arrêt Hippolyte Bottier';
-    lineInfoElement.textContent = 'Ligne 3 - Hippolyte Bottier → Cimetière Nord';
-  }
-}
-
-// Changer la période (scolaire/vacances)
-function togglePeriod() {
-  isSchoolPeriod = !isSchoolPeriod;
-  periodDisplayElement.textContent = isSchoolPeriod ? 'Période scolaire' : 'Vacances / Samedi';
-  getNextBus();
-}
-
-// Calculer la distance entre deux points GPS (formule de Haversine)
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Rayon de la Terre en kilomètres
-  const dLat = (lat2 - lat1) * (Math.PI / 180);
-  const dLon = (lon2 - lon1) * (Math.PI / 180);
-  const a = 
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const distance = R * c; // Distance en kilomètres
-  return distance;
-}
-
-// Déterminer l'arrêt le plus proche
-function findClosestStop(userLat, userLng) {
-  let minDistance = Infinity;
-  let closest = null;
-
-  for (const [key, stop] of Object.entries(stopLocations)) {
-    const distance = calculateDistance(userLat, userLng, stop.lat, stop.lng);
-    if (distance < minDistance) {
-      minDistance = distance;
-      closest = key;
-    }
-  }
-
-  return closest;
-}
-
-// Mettre à jour la direction en fonction de l'arrêt le plus proche
-function updateDirectionBasedOnLocation() {
-  if (!userLocation) return;
-  
-  closestStop = findClosestStop(userLocation.latitude, userLocation.longitude);
-  
-  if (closestStop === 'cimetiereNord') {
-    currentDirection = 'cimetiereToHippolyte';
-  } else if (closestStop === 'hippolyteBottier') {
-    currentDirection = 'hippolyteToCimetiere';
-  }
-  
-  updateDirectionDisplay();
-  getNextBus();
-}
-
-// Obtenir la géolocalisation de l'utilisateur
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        userLocation = position.coords;
-        updateDirectionBasedOnLocation();
-      },
-      (error) => {
-        console.error("Erreur de géolocalisation:", error);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  }
-}
-
-// Initialisation
-function init() {
-  // Mettre à jour l'heure
-  updateCurrentTime();
-  setInterval(updateCurrentTime, 60000); // Mettre à jour toutes les minutes
-  
-  // Vérifier le type de période
-  checkIfVacation();
-  
-  // Configurer les événements
-  toggleDirectionButton.addEventListener('click', toggleDirection);
-  togglePeriodButton.addEventListener('click', togglePeriod);
-  
-  // Obtenir la géolocalisation
-  getLocation();
-  
-  // Obtenir les horaires des bus
-  getNextBus();
-  
-  // Mettre à jour les horaires régulièrement
-  setInterval(getNextBus, 30000); // Mettre à jour toutes les 30 secondes
-}
-
-// Démarrer l'application
-document.addEventListener('DOMContentLoaded', init);Element.textContent = nextBusTime;
   waitTimeElement.textContent = `${waitTimeInMinutes} min`;
   adjustedTimeElement.textContent = `${adjustedWaitTimeInMinutes} min`;
   delayInfoElement.textContent = realTimeInfo.delayText;
